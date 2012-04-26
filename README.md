@@ -34,14 +34,14 @@ While the jSON files demonstreated here come by means of YQL courtesly of the Ya
 
 ## To Do ##
  
-* add (more robust) error handling for ajax
+* add (more robs) error handling, more of it for both AJAX calls and instatiating settings
 * add google analytics, w/push for outbound clicks
 * perhaps use data- item attributes instead of parameters
 * use session storage for json captures so only 1 trip required per session
-* how about feeds from sources other than Yahoo! News
-* error handling, more of it for both AJAX calls and instatiating settings
 * would it killya to add implementation-related comments in the demo & plugin?
 * consdier implementing defer/promise for AJAX calls 
+* how about feeds from sources other than Yahoo! News
+* break-out YQL call into getYQL method, add a getJSON methods 
 * roll into phonegap project
 
 ## Technologies Employed ##
