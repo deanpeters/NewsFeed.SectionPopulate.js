@@ -3,7 +3,10 @@ NewsFeed.SectionPopulate.js - a jQuery plugin that renders RSS items from jSON c
 
 NewsFeed.SectionPopulate.js is a jQuery plugin used to consume and render RSS news items via jSON files created via YQL.
 
-While the jSON files demonstreated here come by means of YQL courtesly of the Yahoo! Developer Network, this plugin can be expanded to consume any jSON feed providing similarly structured data.
+While the jSON files demonstreated here come by means of YQL courtesy of the Yahoo! Developer Network, this plugin can be expanded to consume any jSON feed providing similarly structured data.
+
+You can see it in action over on JSFiddle at http://jsfiddle.net/deanpeters/By3NM/
+
 
 ## Implementation ##
 
