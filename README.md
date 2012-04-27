@@ -35,7 +35,7 @@ You can see it in action over on JSFiddle at http://jsfiddle.net/deanpeters/By3N
 	</body>
 
 
-## To Do ##
+## To Do ## 
  
 * add (more robs) error handling, more of it for both AJAX calls and instatiating settings
 * add google analytics, w/push for outbound clicks

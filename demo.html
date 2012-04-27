@@ -1,9 +1,8 @@
-<iframe style="width: 100%; height: 300px" src="http://jsfiddle.net/deanpeters/By3NM/embedded/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
 <!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-  <title>NewsFee.SectionPopulate jQuery Plugin</title>
+  <title>Fun with the YQL, jQuery AJAX &amp; my NewsFeed.SectionPopulate Plugin - jsFiddle demo by deanpeters</title>
   
   <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
   
@@ -12,7 +11,6 @@
   
   <style type='text/css'>
     
-
   </style>
   
 
@@ -32,7 +30,7 @@ $(function(){
         $.NewsFeed = new Object();
     };
 
-    $.NewsFeed.SectionPopulate = function(el, sectionName, rssCategory, maxStories, titleSelector, listSelector, toggleClass, options) {
+    $.NewsFeed.SectionPopulate = function(el, sectionName, rssFeedUrl, maxStories, storiesWithImagesOnly, titleSelector, listSelector, toggleClass, options) {
         // To avoid scope issues, use 'base' instead of 'this'
         // to reference this class from internal events and functions.
         var base = this;
@@ -46,15 +44,17 @@ $(function(){
 
         base.init = function() {
             if (typeof(sectionName) === "undefined" || sectionName === null) sectionName = "Top Stories";
-            if (typeof(rssCategory) === "undefined" || rssCategory === null) rssCategory = "topstories";
+            if (typeof(rssFeedUrl) === "undefined" || rssFeedUrl === null) rssFeedUrl = "topstories";
             if (typeof(maxStories) === "undefined" || maxStories === null) maxStories = 12;
+            if (typeof(storiesWithImagesOnly) === "undefined" || storiesWithImagesOnly === null) storiesWithImagesOnly = false;
             if (typeof(listSelector) === "undefined" || listSelector === null) listSelector = "ul";
             if (typeof(titleSelector) === "undefined" || titleSelector === null) titleSelector = "h4";
             if (typeof(toggleClass) === "undefined" || toggleClass === null) toggleClass = "on";
 
             base.sectionName = sectionName;
-            base.rssCategory = rssCategory;
+            base.rssFeedUrl = rssFeedUrl;
             base.maxStories = maxStories;
+            base.storiesWithImagesOnly = storiesWithImagesOnly;
             base.listSelector = listSelector;
             base.titleSelector = titleSelector;
             base.toggleClass = toggleClass;
@@ -79,9 +79,7 @@ $(function(){
         */         
         base._getData = function() {
             
-            yqlLimit = (base.maxStories && base.maxStories > 0) ? '%20limit%20' + base.maxStories : '';
-
-            yqlURL = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20rss%20where%20url%20in%20(%0A%20%20%20%20'http%3A%2F%2Fnews.yahoo.com%2Frss%2F" + base.rssCategory + "'%0A)%20%20and%20content.type%20%3D%20'image%2Fjpeg'" + yqlLimit + "%20%7C%20sort(field%3D%22date%22%2C%20descending%3D%22true%22)%20%20%7C%20unique(field%3D%22guid%22)%20&format=json&diagnostics=true&callback=?";
+            yqlURL = base._getUrl(base.rssFeedUrl);
             console.log(yqlURL);
 
             var jqxhr = $.getJSON(yqlURL, function(data, status) {
@@ -98,6 +96,22 @@ $(function(){
         };
 
 
+        /* 
+         * this method creates the YQL call
+         *
+         * it takes an rssFeed arg instead of base.rssFeedUrl so it can be used on other contexts
+         * 
+         */        
+        base._getUrl = function(rssFeed) {
+            
+            yqlLimit = (base.maxStories && base.maxStories > 0) ? '%20limit%20' + base.maxStories : '';
+            yqlImageOnly = (base.storiesWithImagesOnly) ? "%20and%20content.type%20%3D%20'image%2Fjpeg'%20" : '';
+
+            return "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20rss%20where%20url%20in%20(%0A%20%20%20%20'" + encodeURI(rssFeed) + "'%0A)%20" + yqlImageOnly + yqlLimit + "%20%7C%20sort(field%3D%22date%22%2C%20descending%3D%22true%22)%20%20%7C%20unique(field%3D%22guid%22)%20&format=json&diagnostics=true&callback=?";
+
+        };
+      
+        
         /* 
          * this module takes what was retreived from _getData() and renders it
          *
@@ -175,8 +189,9 @@ $(function(){
     /* set the defaults */
     $.NewsFeed.SectionPopulate.defaultOptions = {
         sectionName: "Top Stories",
-        rssCategory: "topstories",
+        rssFeedUrl: "topstories",
         maxStories: 12,
+        storiesWithImagesOnly: false,
         titleSelector: "h4",
         listSelector: "ul",
         toggleClass: "on"
@@ -189,9 +204,9 @@ $(function(){
     *    $('#living').newsfeed_SectionPopulate('Living', 'living', 5, 'h3');
     *  });
     */
-    $.fn.newsfeed_SectionPopulate = function(sectionName, rssCategory, maxStories, titleSelector, listSelector, toggleClass, options) {
+    $.fn.newsfeed_SectionPopulate = function(sectionName, rssFeedUrl, maxStories, storiesWithImagesOnly, titleSelector, listSelector, toggleClass, options) {
         return this.each(function() {
-            (new $.NewsFeed.SectionPopulate(this, sectionName, rssCategory, maxStories, titleSelector, listSelector, toggleClass, options));
+            (new $.NewsFeed.SectionPopulate(this, sectionName, rssFeedUrl, maxStories, storiesWithImagesOnly, titleSelector, listSelector, toggleClass, options));
         });
     };
 
@@ -210,10 +225,10 @@ $(function(){
 
 </head>
 <body>
-  <div id="todo">
+    <div id="todo">
   
-  	<h1>NewsFeed.SectionPopulate</h1>
-  	<h2>A jQuery plugin for populating lists w/YQL generated jSON of RSS feeds</h2>  	
+      <h1>NewsFeed.SectionPopulate</h1>
+      <h2>A jQuery plugin for populating lists w/YQL generated jSON of RSS feeds</h2>      
     <h3>to do</h3>
     <ol>
         <li>add (<em>more robust</em>) error handling for ajax</li>
@@ -225,7 +240,7 @@ $(function(){
     </ol>
     
     <p>
-    	You can keep an eye on my progress over at <a href="http://jsfiddle.net/deanpeters/By3NM/">http://jsfiddle.net/deanpeters/By3NM/</a> if you prefer.
+        You can keep an eye on my progress over at <a href="http://jsfiddle.net/deanpeters/By3NM/">http://jsfiddle.net/deanpeters/By3NM/</a> if you prefer.
     </p>
 </div>
 <div id="topStories">
@@ -236,18 +251,26 @@ $(function(){
     <h5></h5>
     <ol id="thelist2"></ol>
 </div>
+<div id="lifeHackerSocial">
+    <h5></h5>
+    <ul id="thelist2"></ul>
+</div>
 <script>
     
 $(window).load(function() {
     console.log($.fn.newsfeed_SectionPopulate);
     
     $(function(){
-         $('#topStories').newsfeed_SectionPopulate('My Top Stories', 'topstories', 5, 'h4', 'ul', 'on');
+ 
+    $('#topStories').newsfeed_SectionPopulate('My Top Stories', 'http://news.yahoo.com/rss/topstories', 12, false, 'h4', 'ul', 'on');
     
 
-         $('#sportsStories').newsfeed_SectionPopulate('Sports Updates', 'sports', 7, 'h5', 'ol', 'on');
+         $('#sportsStories').newsfeed_SectionPopulate('Sports Updates', 'http://news.yahoo.com/rss/sports', 12, true, 'h5', 'ol', 'on');
     
 
+    $('#lifeHackerSocial').newsfeed_SectionPopulate('Life Hacker Social', 'http://lifehacker.com/social/index.xml', 12, false, 'h5', 'ul', 'on');
+    
+    
         });
     });
 </script>
@@ -279,5 +302,4 @@ $(window).load(function() {
 
 
 </html>
-
 
